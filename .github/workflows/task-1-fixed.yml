@@ -1,0 +1,46 @@
+# Task 1, fixed.
+#
+# Two changes were needed, not one:
+#
+#   needs: one          decides WHEN job two starts
+#   upload/download     decides WHERE the file lives in between
+#
+# needs on its own does not move a single byte. The artifact is what
+# actually carries the file off job one's machine and onto job two's.
+
+name: Task 1 - fixed with an artifact
+
+on:
+  workflow_dispatch:
+
+jobs:
+  one:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Which machine am I on
+        run: hostname
+
+      - name: Write a file
+        run: echo "A" > note.txt
+
+      - name: Put it somewhere that outlives this machine
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: note
+          path: note.txt
+          retention-days: 1
+
+  two:
+    needs: one
+    runs-on: ubuntu-latest
+    steps:
+      - name: Which machine am I on, still a different one
+        run: hostname
+
+      - name: Fetch the file job one uploaded
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: note
+
+      - name: Now it is here
+        run: cat note.txt

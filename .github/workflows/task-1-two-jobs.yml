@@ -1,12 +1,10 @@
 # Task 1: two jobs, one file, one trap.
 #
 # This workflow is MEANT to fail. Job "two" cannot read the file job "one"
-# wrote, because every job gets its own brand new virtual machine and job
-# one's machine is thrown away when it finishes.
+# wrote, because every job gets its own brand new virtual machine, and job
+# one's machine is destroyed the moment it finishes.
 #
-# Adding "needs: one" to job two fixes the ORDER and still does not fix the
-# file. Ordering and sharing files are two different problems. Sharing files
-# between jobs needs artifacts, which is Day 2.
+# Each job prints its hostname. Compare them. That is the whole lesson.
 
 name: Task 1 - two jobs, one file
 
@@ -19,6 +17,9 @@ jobs:
   one:
     runs-on: ubuntu-latest
     steps:
+      - name: Which machine am I on
+        run: hostname
+
       - name: Write a file
         run: echo "A" > note.txt
 
@@ -28,5 +29,8 @@ jobs:
   two:
     runs-on: ubuntu-latest
     steps:
+      - name: Which machine am I on
+        run: hostname
+
       - name: Try to read the file job one wrote
         run: cat note.txt
