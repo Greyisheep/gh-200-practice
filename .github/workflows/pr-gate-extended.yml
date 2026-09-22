@@ -1,0 +1,53 @@
+# The fuller version, for teams who finish early or for Day 2.
+# Adds a facts job using contexts, and a report job using needs + if: always()
+# + $GITHUB_STEP_SUMMARY. All three are Day 2 material.
+
+name: PR gate extended
+
+on:
+  workflow_dispatch:
+
+jobs:
+  facts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Who and what
+        run: |
+          {
+            echo "### Who opened this"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Actor | ${{ github.actor }} |"
+            echo "| Branch | ${{ github.head_ref || github.ref_name }} |"
+            echo "| Commit | ${{ github.sha }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - run: python capstone/check.py
+
+  report:
+    needs: [facts, check]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write the verdict
+        run: |
+          {
+            echo "### Gate result"
+            echo ""
+            echo "| Job | Result |"
+            echo "|---|---|"
+            echo "| facts | ${{ needs.facts.result }} |"
+            echo "| check | ${{ needs.check.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
