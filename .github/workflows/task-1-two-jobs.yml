@@ -4,9 +4,9 @@
 # wrote, because every job gets its own brand new virtual machine, and job
 # one's machine is destroyed the moment it finishes.
 #
-# Both jobs print their runner name and machine ID. They are different.
+# Both jobs print their runner name. They are always different numbers.
 # That is the whole lesson. (Do not use `hostname` for this, GitHub
-# sometimes gives two runners the same one.)
+# reuses both across runners. RUNNER_NAME is the one that differs.)
 
 name: Task 1 - two jobs, one file
 
@@ -20,9 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Which machine am I on
-        run: |
-          echo "Runner:     $RUNNER_NAME"
-          echo "Machine ID: $(cat /etc/machine-id)"
+        run: echo "This job is running on runner: $RUNNER_NAME"
 
       - name: Write a file
         run: echo "A" > note.txt
@@ -33,10 +31,8 @@ jobs:
   two:
     runs-on: ubuntu-latest
     steps:
-      - name: Which machine am I on, look at the numbers
-        run: |
-          echo "Runner:     $RUNNER_NAME"
-          echo "Machine ID: $(cat /etc/machine-id)"
+      - name: Which runner am I on, look at the number
+        run: echo "This job is running on runner: $RUNNER_NAME"
 
       - name: Try to read the file job one wrote
         run: cat note.txt
