@@ -1,12 +1,6 @@
-# Task 1: two jobs, one file, one trap.
-#
-# This workflow is MEANT to fail. Job "two" cannot read the file job "one"
-# wrote, because every job gets its own brand new virtual machine, and job
-# one's machine is destroyed the moment it finishes.
-#
-# Both jobs print their runner name. They are always different numbers.
-# That is the whole lesson. (Do not use `hostname` for this, GitHub
-# reuses both across runners. RUNNER_NAME is the one that differs.)
+# Task 1: two jobs, one file, one trap. This workflow is MEANT to fail.
+# Each job prints its runner name. The numbers are different, because each
+# job gets its own machine and job one's machine is gone before two starts.
 
 name: Task 1 - two jobs, one file
 
@@ -19,20 +13,12 @@ jobs:
   one:
     runs-on: ubuntu-latest
     steps:
-      - name: Which machine am I on
-        run: echo "This job is running on runner: $RUNNER_NAME"
-
-      - name: Write a file
-        run: echo "A" > note.txt
-
-      - name: Read it back, same machine, works fine
-        run: cat note.txt
+      - run: echo "Runner - $RUNNER_NAME"
+      - run: echo "A" > note.txt
+      - run: cat note.txt
 
   two:
     runs-on: ubuntu-latest
     steps:
-      - name: Which runner am I on, look at the number
-        run: echo "This job is running on runner: $RUNNER_NAME"
-
-      - name: Try to read the file job one wrote
-        run: cat note.txt
+      - run: echo "Runner - $RUNNER_NAME"
+      - run: cat note.txt

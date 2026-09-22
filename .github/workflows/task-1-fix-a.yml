@@ -1,0 +1,14 @@
+# Fix A, the simplest one: do not use two jobs. Steps in the same job share
+# the same machine, so the file is simply there. Four lines deleted.
+
+name: Task 1 - fix A, one job
+
+on: workflow_dispatch
+
+jobs:
+  one:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Runner - $RUNNER_NAME"
+      - run: echo "A" > note.txt
+      - run: cat note.txt
