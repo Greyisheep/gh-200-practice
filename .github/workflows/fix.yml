@@ -6,7 +6,9 @@ jobs:
       - run: echo "A" > note.txt
       - run: cat note.txt
       - uses: actions/upload-artifact@v4          
-        with: { name: note, path: note.txt }      
+        with: 
+          name: note 
+          path: note.txt     
   two:
     needs: one                                    
     runs-on: ubuntu-latest
