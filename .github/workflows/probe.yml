@@ -1,0 +1,23 @@
+name: probe
+on: workflow_dispatch
+jobs:
+  a:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "hostname   = $(hostname)"
+          echo "machine-id = $(cat /etc/machine-id)"
+          echo "boot_id    = $(cat /proc/sys/kernel/random/boot_id)"
+          echo "booted_at  = $(uptime -s)"
+          echo "runner     = $RUNNER_NAME"
+          echo "ip         = $(hostname -I | awk '{print $1}')"
+  b:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "hostname   = $(hostname)"
+          echo "machine-id = $(cat /etc/machine-id)"
+          echo "boot_id    = $(cat /proc/sys/kernel/random/boot_id)"
+          echo "booted_at  = $(uptime -s)"
+          echo "runner     = $RUNNER_NAME"
+          echo "ip         = $(hostname -I | awk '{print $1}')"
