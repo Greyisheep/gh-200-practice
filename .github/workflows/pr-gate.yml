@@ -1,0 +1,67 @@
+# Capstone reference solution. Do not hand this out before they have built it.
+
+name: PR gate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # Requirement 2: who, which branch, which commit, straight from contexts.
+  facts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Who and what
+        run: |
+          {
+            echo "### Who opened this"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Actor | ${{ github.actor }} |"
+            echo "| Branch | ${{ github.head_ref || github.ref_name }} |"
+            echo "| Commit | ${{ github.sha }} |"
+            echo "| Event | ${{ github.event_name }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # Requirements 3 and 4: both operating systems, and do not stop at the first red.
+  check:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Run the check
+        run: python capstone/check.py
+
+  # Requirements 5 and 6: wait for both, run even when they failed, write a table.
+  report:
+    needs: [facts, check]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write the verdict
+        run: |
+          {
+            echo "### Gate result"
+            echo ""
+            echo "| Job | Result |"
+            echo "|---|---|"
+            echo "| facts | ${{ needs.facts.result }} |"
+            echo "| check (both OS) | ${{ needs.check.result }} |"
+            echo ""
+            if [ "${{ needs.check.result }}" != "success" ]; then
+              echo "The check failed on at least one operating system."
+              echo "Open the run, find the red leg, and read the first error."
+            else
+              echo "Both operating systems agree. Safe to merge."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
